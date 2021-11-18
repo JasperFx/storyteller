@@ -12,9 +12,17 @@ export enum SpecificationResult{
 }
 
 export class Counts {
-    rights: number;
-    wrongs: number;
-    exceptions: number;
+    rights: number = 0;
+    wrongs: number = 0;
+    exceptions: number = 0;
+
+    result() : SpecificationResult {
+        if (this.wrongs > 0 || this.exceptions > 0) return SpecificationResult.Failed;
+        
+        if (this.rights > 0) return SpecificationResult.Success;
+        
+        return SpecificationResult.None;
+    }
 }
 
 export class Specification {
@@ -23,6 +31,7 @@ export class Specification {
     progress: number;
     total: number;
     state: SpecificationState;
+    counts: Counts;
     
     constructor(title: string, id: string){
         this.title = title;
@@ -34,32 +43,43 @@ export class Specification {
 }
 
 export class Project {
-    specs: Map<string, Specification>;
-    suites: Map<string, Suite>;
+    specs = new Map<string, Specification>();
+    suites = new Map<string, Suite>();
     name: string;
     
     constructor(name: string) {
         this.name = name;
-        this.specs = new Map<string, Specification>();
-        this.suites = new Map<string, Suite>();
+    }
+    
+    result() : SpecificationResult{
+        if (!this.counts) return SpecificationResult.None;
+        
+        return this.counts.result();
     }
 
     add(spec: Specification, suite: string) {
         this.specs.set(spec.id, spec);
-        this.suites[suite].add(spec);
+        if (!this.suites.has(suite)){
+            this.suites.set(suite, new Suite(suite));
+        }
+        
+        this.suites.get(suite).add(spec);
     }
     
     changeState(id: string, state: SpecificationState){
-        this.specs[id].state = state;
+        const spec = this.specs.get(id);
+        spec.counts = new Counts();
+        spec.state = state;
     }
     
     recordCompletion(id: string, counts: Counts){
-        this.specs[id].counts = counts;
-        this.specs[id].state = SpecificationState.None;
+        const spec = this.specs.get(id);
+        spec.counts = counts;
+        spec.state = SpecificationState.None;
     }
 
     recordProgress(id: string, counts: Counts, progress: number, total: number) {
-        var spec = this.specs[id];
+        const spec = this.specs.get(id);
         spec.counts = counts;
         spec.progress = progress;
         spec.total = total;
@@ -69,8 +89,10 @@ export class Project {
 export class Suite {
     specs: Specification[];
     children: Map<string, Suite>;
+    path: string;
 
-    constructor() {
+    constructor(path: string) {
+        this.path = path;
         this.specs = [];
         this.children = new Map<string, Suite>();
     }
@@ -80,60 +102,5 @@ export class Suite {
     }
 }
 
-const initialData = {
-    name: 'My Testing Project',
-    specs: [
-        {title: 'The first spec', id: '1', suite: 'Folder 1'},
-        {title: 'The second spec', id: '2', suite: 'Folder 1'},
-        {title: 'The third spec', id: '3', suite: 'Folder 2'},
-        {title: 'The fourth spec', id: '4', suite: 'Folder 3'},
-        {title: 'The fifth spec', id: '5', suite: 'Folder 3'},
-        {title: 'The sixth spec', id: '6', suite: 'Folder 3'}
-    ]
-}
 
-function buildProject(data: any) : Project{
-    const project = new Project(data.name);
-
-    for (let i = 0; i < data.specs.length; i++) {
-        const element = data.specs[i];
-        const spec = new Specification(element.title, element.id);
-        project.add(spec, element.suite);
-    }
-
-    
-    return project;
-}
- 
-type Action =
-    | {type: "initial", data: any}
-    | {type: "spec-queued", id: string}
-    | {type: "spec-started", id: string, steps: number}
-    | {type: "spec-finished", id: string, counts: Counts}
-    | {type: "spec-progress", id: string, counts: Counts, progress: number, total: number}
-
-export function ProjectReducer(state: Project, action: Action) : Project {
-    switch (action.type){
-        case 'initial':
-            return buildProject(action);
-            
-        case 'spec-queued':
-            state.changeState(action.id, SpecificationState.Queued);
-            return state;
-            
-        case 'spec-started':
-            state.changeState(action.id, SpecificationState.Running);
-            return state;
-            
-        case 'spec-finished': 
-            state.recordCompletion(action.id, action.counts);
-            return state;
-            
-        case 'spec-progress':
-            state.recordProgress(action.id, action.counts, action.progress, action.total);
-            return state;
-    }
-    
-    return state;
-}
 
