@@ -88,12 +88,13 @@ describe('ProjectReducer', () => {
        });
        
     });
-});
-
-test('And we are working', () => {
-   expect(true).toBe(true); 
-});
-
-test('Specification state', () => {
     
+    describe('Recording a spec being queued', () => {
+        let project = ProjectReducer(new Project(), initialData);
+        project = ProjectReducer(project, {type: 'spec-queued', id: '1'});
+        
+        expect(project.specs.get('1').state)
+            .toBe(SpecificationState.Queued);
+    });
 });
+

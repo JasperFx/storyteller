@@ -3,9 +3,6 @@ import {Counts, Project, Specification, SpecificationState} from "./Specificatio
 function buildProject(data: any): Project {
     const project = new Project(data.name);
 
-    console.log(data.name);
-    console.log(project.name);
-
     for (let i = 0; i < data.specs.length; i++) {
         const element = data.specs[i];
         const spec = new Specification(element.title, element.id);
