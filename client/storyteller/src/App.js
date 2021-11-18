@@ -1,13 +1,11 @@
-import logo from './logo.svg';
 import './App.css';
 
-import { Container } from '@mui/material';
+import {Container} from '@mui/material';
 import AppBar from '@mui/material/AppBar';
 import Tooltip from '@mui/material/Tooltip';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -16,36 +14,10 @@ import TableRowsIcon from '@mui/icons-material/TableRows';
 import PieChartIcon from '@mui/icons-material/PieChart';
 
 
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Link
-} from "react-router-dom";
-
-function Home() {
-  return (
-    <div>
-      <h2>Home</h2>
-    </div>
-  );
-}
-
-function Chart() {
-  return (
-    <div>
-      <h2>Chart</h2>
-    </div>
-  );
-}
-
-function Table() {
-  return (
-    <div>
-      <h2>Table</h2>
-    </div>
-  );
-}
+import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
+import {Home} from "./Home";
+import {Chart} from "./Chart";
+import {Table} from "./Table";
 
 function App() {
   return (
