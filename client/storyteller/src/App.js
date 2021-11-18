@@ -18,6 +18,7 @@ import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import {Home} from "./Home";
 import {Chart} from "./Chart";
 import {Table} from "./Table";
+import {State} from "./State";
 
 function App() {
   return (
@@ -71,6 +72,7 @@ function App() {
           <Routes>
             <Route path="/table" element={<Table />} />
             <Route path="/chart" element={<Chart />} />
+            <Route path="/state" element={<State />} />
             <Route exact path="/" element={<Home />} />
           </Routes>
           </Container>
